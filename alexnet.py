@@ -1,0 +1,107 @@
+import torch
+import torchvision
+import torch.nn as nn
+import torch.optim as optim
+from torch.autograd import Variable
+from torchvision import transforms, datasets
+import torch.nn.functional as F
+import torch.nn.init as init
+
+num_classes = 35
+	
+data_transform = transforms.Compose([
+        transforms.Scale(256),
+        transforms.CenterCrop(256),
+        transforms.RandomSizedCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225])
+    ])
+
+dataset = datasets.ImageFolder(root='hymenoptera_data/train',
+                                           transform=data_transform)
+
+trainloader = torch.utils.data.DataLoader(dataset,batch_size=128, shuffle=True,
+                                             num_workers=4)
+class AlexNet(nn.Module):
+	def __init__(self, num_classes = 35):
+		super(AlexNet, self).__init__()
+		self.convolution = nn.Sequential(
+			nn.Conv2d(3, 96, kernel_size=11, stride=4, padding=2),
+			nn.ReLU(inplace=True),
+			nn.MaxPool2d(kernel_size=3, stride=2),
+			nn.Conv2d(96, 256, kernel_size=5, padding=2),
+			nn.ReLU(inplace=True),
+			nn.MaxPool2d(kernel_size=3, stride=2),
+			nn.Conv2d(256, 384, kernel_size=3, padding=1),
+			nn.ReLU(inplace=True),
+			nn.Conv2d(384, 384, kernel_size=3, padding=1),
+			nn.ReLU(inplace=True),
+			nn.Conv2d(384, 256, kernel_size=3, padding=1),
+			nn.ReLU(inplace=True),
+			nn.MaxPool2d(kernel_size=3, stride=2),
+		)
+		init.normal(self.convolution[0].weight, mean=0, std=0.01)
+		init.constant(self.convolution[0].bias, 0)
+		init.normal(self.convolution[1].weight, mean=0, std=0.01)
+		init.constant(self.convolution[1].bias, 1)
+		init.normal(self.convolution[2].weight, mean=0, std=0.01)
+		init.constant(self.convolution[2].bias, 0)
+		init.normal(self.convolution[3].weight, mean=0, std=0.01)
+		init.constant(self.convolution[3].bias, 1)
+		init.normal(self.convolution[4].weight, mean=0, std=0.01)
+		init.constant(self.convolution[4].bias, 1)
+
+		self.linear = nn.Sequential(
+			nn.Dropout(),
+			nn.Linear(256 * 6 * 6, 4096),
+			nn.ReLU(inplace=True),
+			nn.Dropout(),
+			nn.Linear(4096, 4096),
+			nn.ReLU(inplace=True),
+			nn.Linear(4096, num_classes),
+		)
+		init.normal(self.linear[0].weight, mean=0, std=0.01)
+		init.constant(self.linear[0].bias, 1)
+		init.normal(self.linear[1].weight, mean=0, std=0.01)
+		init.constant(self.linear[1].bias, 1)
+		init.normal(self.linear[2].weight, mean=0, std=0.01)
+		init.constant(self.linear[2].bias, 1)
+
+	def forward(self,x):
+		x = self.convolution(x)
+		x = x.view(x.size(0), 256 * 6 * 6)
+		x = self.linear(x)
+		return x
+
+alex_net = Net()
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(alex_net.parameters(), lr=0.01,wd = 0.0005, momentum=0.9)
+
+for epoch in range(2):  # loop over the dataset multiple times
+
+    running_loss = 0.0
+    for i, data in enumerate(trainloader, 0):
+        # get the inputs
+        inputs, labels = data
+
+        # wrap them in Variable
+        inputs, labels = Variable(inputs), Variable(labels)
+
+        # zero the parameter gradients
+        optimizer.zero_grad()
+
+        # forward + backward + optimize
+        outputs = alex_net(inputs)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+
+        # print statistics
+        running_loss += loss.data[0]
+        if i % 2000 == 1999:    # print every 2000 mini-batches
+            print('[%d, %5d] loss: %.3f' %
+                  (epoch + 1, i + 1, running_loss / 2000))
+            running_loss = 0.0
+
+print('Finished Training')
