@@ -9,20 +9,38 @@ import torch.nn.init as init
 
 num_classes = 35
 	
-data_transform = transforms.Compose([
+data_transform1 = transforms.Compose([
         transforms.Scale(256),
         transforms.CenterCrop(256),
-        transforms.RandomSizedCrop(224),
+        transforms.CenterCrop(224),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406],
                              std=[0.229, 0.224, 0.225])
     ])
 
-dataset = datasets.ImageFolder(root='hymenoptera_data/train',
-                                           transform=data_transform)
+# data_transform2 = transforms.Compose([
+#         transforms.Scale(256),
+#         transforms.CenterCrop(256),
+#         transforms.CenterCrop(224),
+#         transforms.RandomHorizontalFlip(),
+#         transforms.ToTensor(),
+#         transforms.Normalize(mean=[0.485, 0.456, 0.406],
+#                              std=[0.229, 0.224, 0.225])
+#     ])
+
+dataset1 = datasets.ImageFolder(root='~/dataset/train',
+                                           transform=data_transform1)
+
+# dataset2 = datasets.ImageFolder(root='dataset/train',
+#                                            transform=data_transform2)
+
+# dataset = torch.utils.data.ConcatDataset([dataset1,dataset2])
+
+dataset = dataset1
 
 #Edit here
-val_dataset = dataset.ImageFolder()
+val_dataset = datasets.ImageFolder(root='~/dataset/train',
+                                           transform=data_transform1)
 
 trainloader = torch.utils.data.DataLoader(dataset,batch_size=128, shuffle=True,
                                              num_workers=4)
