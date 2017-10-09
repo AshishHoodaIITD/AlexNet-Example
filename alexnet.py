@@ -40,11 +40,22 @@ dataset1 = datasets.ImageFolder(root='~/dataset/train',
 dataset = dataset1
 
 #Edit here
-val_dataset = datasets.ImageFolder(root='~/dataset/train',
+val_dataset = datasets.ImageFolder(root='~/dataset/validation',
+                                           transform=data_transform1)
+
+test_dataset = datasets.ImageFolder(root='~/dataset/test',
                                            transform=data_transform1)
 
 trainloader = torch.utils.data.DataLoader(dataset,batch_size=128, shuffle=True,
                                              num_workers=4)
+
+valloader = torch.utils.data.DataLoader(val_dataset,batch_size=128, shuffle=True,
+                                             num_workers=4)
+
+testloader = torch.utils.data.DataLoader(test_dataset,batch_size=128, shuffle=True,
+                                             num_workers=4)
+
+
 class AlexNet(nn.Module):
 	def __init__(self, num_classes = 35):
 		super(AlexNet, self).__init__()
