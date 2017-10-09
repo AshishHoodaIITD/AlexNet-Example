@@ -176,22 +176,27 @@ def train()
 
 	return alex_net_optimal
 
-def test(model)
+def test(test_loader,model)
 	correct = 0
 	total = 0
-	for data in valloader:
+	for data in test_loader:
     	images, labels = data
     	outputs = model(Variable(images))
     	_, predicted = torch.max(outputs.data, 1)
     	total += labels.size(0)
     	correct += (predicted == labels).sum()
 
-	print('Accuracy of the network on the 10000 test images: %d %%' % (
-    	100 * correct / total))
-	return 100*correct/total
+	# print('Accuracy of the network on the validation set: %d %%' % (
+ #    	100 * correct / total))
+	return (100*correct/total)
 
 
 if __name__ == '__main__':
 	model = train()
-	acc = test(model)
+	acc = test(valloader,model)
+	print('Accuracy of the network on the validation set: %d %%' % (
+    	acc))
+	acc = test(testloader,model)
+	print('Accuracy of the network on the test set: %d %%' % (
+    	acc))
 
