@@ -108,8 +108,10 @@ class AlexNet(nn.Module):
 		return x
 
 def train()
-	alex_net = Net()
-	alex_net_optimal = Net()
+	alex_net = AlexNet()
+	alex_net = alex_net.cuda()
+	alex_net_optimal = AlexNet()
+	alex_net_optimal = alex_net_optimal.cuda()
 	criterion = nn.CrossEntropyLoss()
 	optimizer = optim.SGD(alex_net.parameters(), lr=0.01,wd = 0.0005, momentum=0.9)
 	scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer,  mode='min', factor=0.1, patience=10)
