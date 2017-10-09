@@ -161,8 +161,8 @@ def train()
 	   	val_loss = criterion(val_output,val_label)
 	   	scheduler.step(val_loss)  
 
-	    if (val_loss - best_loss) < -min_delta:
-	        best_loss = val_loss
+	    if (val_loss.data[0] - best_loss) < -min_delta:
+	        best_loss = val_loss.data[0]
 	        epoch = 0
 	        alex_net_optimal.load_state_dict(alex_net.state_dict())
 	    else:
@@ -173,13 +173,13 @@ def train()
     plt.xlabel('Epoch')
     plt.ylabel('Cross-Entropy Loss')
 	plt.legend()
-	
+
 	return alex_net_optimal
 
-def test(val_loader, model)
+def test(model)
 	correct = 0
 	total = 0
-	for data in testloader:
+	for data in valloader:
     	images, labels = data
     	outputs = model(Variable(images))
     	_, predicted = torch.max(outputs.data, 1)
@@ -189,4 +189,9 @@ def test(val_loader, model)
 	print('Accuracy of the network on the 10000 test images: %d %%' % (
     	100 * correct / total))
 	return 100*correct/total
+
+
+if __name__ == '__main__':
+	model = train()
+	acc = test(model)
 
