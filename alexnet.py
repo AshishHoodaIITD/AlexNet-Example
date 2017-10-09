@@ -21,6 +21,9 @@ data_transform = transforms.Compose([
 dataset = datasets.ImageFolder(root='hymenoptera_data/train',
                                            transform=data_transform)
 
+#Edit here
+val_dataset = dataset.ImageFolder()
+
 trainloader = torch.utils.data.DataLoader(dataset,batch_size=128, shuffle=True,
                                              num_workers=4)
 class AlexNet(nn.Module):
@@ -75,10 +78,20 @@ class AlexNet(nn.Module):
 		return x
 
 alex_net = Net()
+alex_net_optimal = Net()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(alex_net.parameters(), lr=0.01,wd = 0.0005, momentum=0.9)
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer,  mode='min', factor=0.1, patience=10)
 
-for epoch in range(2):  # loop over the dataset multiple times
+#stopping criteria parameters
+wait = 0
+best_loss = 1e15
+min_delta = 1e-5
+p = 10
+#for epoch in range(2):  # loop over the dataset multiple times
+
+epoch = 0
+while epoch < p
 
     running_loss = 0.0
     for i, data in enumerate(trainloader, 0):
@@ -103,5 +116,17 @@ for epoch in range(2):  # loop over the dataset multiple times
             print('[%d, %5d] loss: %.3f' %
                   (epoch + 1, i + 1, running_loss / 2000))
             running_loss = 0.0
+
+
+    val_input,val_label = val_dataset
+    val_output = alex_net(val_input)
+   	val_loss = criterion(val_output,val_label)
+   	scheduler.step(val_loss)  
+    if (val_loss - best_loss) < -min_delta:
+        best_loss = val_loss
+        epoch = 0
+        alex_net_optimal.load_state_dict(alex_net.state_dict())
+    else:
+        epoch++
 
 print('Finished Training')
