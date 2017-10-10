@@ -147,10 +147,10 @@ def train()
 
 	return alex_net_optimal
 
-def test(model)
+def test(testloader,model)
 	correct = 0
 	total = 0
-	for data in valloader:
+	for data in testloader:
     	images, labels = data
     	outputs = model(Variable(images))
     	_, predicted = torch.max(outputs.data, 1)
@@ -164,5 +164,5 @@ def test(model)
 
 if __name__ == '__main__':
 	model = train()
-	acc = test(model)
+	acc = test(testloader,model)
 
