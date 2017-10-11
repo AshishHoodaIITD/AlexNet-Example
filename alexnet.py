@@ -176,7 +176,7 @@ def train():
 		val_acc = 100*(correct/total)
 		print('Accuracy of the network on the validation set: %.5f %% and validation loss: %.3f' % (
 	    	val_acc,val_loss))
-		scheduler.step(val_loss)  
+		scheduler.step(1-val_acc)  
 
 		if (val_acc - best_acc) > min_delta:
 			best_acc = val_acc
