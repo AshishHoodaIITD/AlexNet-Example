@@ -1,3 +1,4 @@
+from __future__ import division
 import torch
 import torchvision
 import torch.nn as nn
@@ -8,6 +9,7 @@ import torch.nn.functional as F
 import torch.nn.init as init
 from torch.optim import lr_scheduler as ls
 import time
+
 # import matplotlib.pyplot as plt
 
 num_classes = 35
@@ -132,6 +134,7 @@ def train():
 	train_error = []
 	iter_train = []
 	while epoch < p:
+	# for epoch in range(1):
 		j = j+1
 		running_loss = 0.0
 		for i, data in enumerate(trainloader, 0):
@@ -160,7 +163,7 @@ def train():
 		train_error.append(100-test(trainloader,alex_net))
 		iter_train.append(j)
 		# acc = test(valloader,alex_net)
-		val_acc=0.0
+		# val_acc=0.0
 		val_loss = 0.0
 		correct = 0
 		total = 0
@@ -220,12 +223,12 @@ if __name__ == '__main__':
 	model = train()
 	total_train = time.time()-model_start_time
 	acc = test(valloader,model)
-	print('Accuracy of the network on the validation set: %d %%' % (
+	print('Accuracy of the network on the validation set: %f %%' % (
     	acc))
 	test_start_time  = time.time()
 	acc = test(testloader,model)
 	total_test = time.time()-test_start_time
-	print('Accuracy of the network on the test set: %d %%' % (
+	print('Accuracy of the network on the test set: %f %%' % (
     	acc))
 	torch.save(model.state_dict(),'./base_model.pth')
 	print('Train time %0.7f and test time %0.7f' % (
