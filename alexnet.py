@@ -7,6 +7,7 @@ from torchvision import transforms, datasets
 import torch.nn.functional as F
 import torch.nn.init as init
 from torch.optim import lr_scheduler as ls
+import time
 # import matplotlib.pyplot as plt
 
 num_classes = 35
@@ -156,7 +157,7 @@ def train():
 			# 	running_loss = 0.0
 
 
-		train_error.append(running_loss/len(trainloader))
+		train_error.append(100-test(trainloader,alex_net))
 		iter_train.append(j)
 		# acc = test(valloader,alex_net)
 		val_acc=0.0
@@ -190,7 +191,7 @@ def train():
 	# plt.xlabel('Epoch')
 	# plt.ylabel('Cross-Entropy Loss')
 	# plt.legend()
-
+	print train_error
 	return alex_net_optimal
 
 def test(test_loader,model):
@@ -215,11 +216,17 @@ def test(test_loader,model):
 
 
 if __name__ == '__main__':
+	model_start_time  = time.time()
 	model = train()
+	total_train = time.time()-model_start_time
 	acc = test(valloader,model)
 	print('Accuracy of the network on the validation set: %d %%' % (
     	acc))
+	test_start_time  = time.time()
 	acc = test(testloader,model)
+	total_test = time.time()-test_start_time
 	print('Accuracy of the network on the test set: %d %%' % (
     	acc))
 	torch.save(model.state_dict(),'./base_model.pth')
+	print('Train time %0.7f and test time %0.7f' % (
+    	total_train,total_test))
