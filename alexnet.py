@@ -10,23 +10,52 @@ import matplotlib.pyplot as plt
 
 num_classes = 35
 	
-data_transform = transforms.Compose([
+data_transform1 = transforms.Compose([
         transforms.Scale(256),
         transforms.CenterCrop(256),
-        transforms.RandomSizedCrop(224),
+        transforms.CenterCrop(224),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406],
                              std=[0.229, 0.224, 0.225])
     ])
 
-dataset = datasets.ImageFolder(root='hymenoptera_data/train',
-                                           transform=data_transform)
+# data_transform2 = transforms.Compose([
+#         transforms.Scale(256),
+#         transforms.CenterCrop(256),
+#         transforms.CenterCrop(224),
+#         transforms.RandomHorizontalFlip(),
+#         transforms.ToTensor(),
+#         transforms.Normalize(mean=[0.485, 0.456, 0.406],
+#                              std=[0.229, 0.224, 0.225])
+#     ])
+
+dataset1 = datasets.ImageFolder(root='~/dataset/train',
+                                           transform=data_transform1)
+
+# dataset2 = datasets.ImageFolder(root='dataset/train',
+#                                            transform=data_transform2)
+
+# dataset = torch.utils.data.ConcatDataset([dataset1,dataset2])
+
+dataset = dataset1
 
 #Edit here
-val_dataset = dataset.ImageFolder()
+val_dataset = datasets.ImageFolder(root='~/dataset/validation',
+                                           transform=data_transform1)
+
+test_dataset = datasets.ImageFolder(root='~/dataset/test',
+                                           transform=data_transform1)
 
 trainloader = torch.utils.data.DataLoader(dataset,batch_size=128, shuffle=True,
                                              num_workers=4)
+
+valloader = torch.utils.data.DataLoader(val_dataset,batch_size=128, shuffle=True,
+                                             num_workers=4)
+
+testloader = torch.utils.data.DataLoader(test_dataset,batch_size=128, shuffle=True,
+                                             num_workers=4)
+
+
 class AlexNet(nn.Module):
 	def __init__(self, num_classes = 35):
 		super(AlexNet, self).__init__()
@@ -79,8 +108,10 @@ class AlexNet(nn.Module):
 		return x
 
 def train()
-	alex_net = Net()
-	alex_net_optimal = Net()
+	alex_net = AlexNet()
+	alex_net = alex_net.cuda()
+	alex_net_optimal = AlexNet()
+	alex_net_optimal = alex_net_optimal.cuda()
 	criterion = nn.CrossEntropyLoss()
 	optimizer = optim.SGD(alex_net.parameters(), lr=0.01,wd = 0.0005, momentum=0.9)
 	scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer,  mode='min', factor=0.1, patience=10)
@@ -157,12 +188,17 @@ def test(testloader,model)
     	total += labels.size(0)
     	correct += (predicted == labels).sum()
 
-	print('Accuracy of the network on the 10000 test images: %d %%' % (
-    	100 * correct / total))
-	return 100*correct/total
+	# print('Accuracy of the network on the validation set: %d %%' % (
+ #    	100 * correct / total))
+	return (100*correct/total)
 
 
 if __name__ == '__main__':
 	model = train()
+	acc = test(valloader,model)
+	print('Accuracy of the network on the validation set: %d %%' % (
+    	acc))
 	acc = test(testloader,model)
+	print('Accuracy of the network on the test set: %d %%' % (
+    	acc))
 
