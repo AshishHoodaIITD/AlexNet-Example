@@ -222,4 +222,4 @@ if __name__ == '__main__':
 	acc = test(testloader,model)
 	print('Accuracy of the network on the test set: %d %%' % (
     	acc))
-
+	torch.save(model.state_dict(),'./base_model.pth')
