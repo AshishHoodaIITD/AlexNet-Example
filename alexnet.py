@@ -8,7 +8,7 @@ from torchvision import transforms, datasets
 import torch.nn.functional as F
 import torch.nn.init as init
 from torch.optim import lr_scheduler as ls
-import time
+import copy
 
 # import matplotlib.pyplot as plt
 
@@ -18,7 +18,7 @@ data_transform1 = transforms.Compose([
         transforms.Scale(256),
         transforms.CenterCrop(256),
         transforms.CenterCrop(224),
-        transforms.RandomHorizontalFlip(),
+        # transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406],
                              std=[0.229, 0.224, 0.225])
@@ -186,6 +186,7 @@ def train():
 			best_acc = val_acc
 			epoch = 0
 			alex_net_optimal.load_state_dict(alex_net.state_dict())
+			alex_net_optimal = copy.deepcopy(alex_net)
 		else:
 			epoch = epoch +1
 
@@ -219,17 +220,11 @@ def test(test_loader,model):
 
 
 if __name__ == '__main__':
-	model_start_time  = time.time()
 	model = train()
-	total_train = time.time()-model_start_time
 	acc = test(valloader,model)
 	print('Accuracy of the network on the validation set: %f %%' % (
     	acc))
-	test_start_time  = time.time()
 	acc = test(testloader,model)
-	total_test = time.time()-test_start_time
 	print('Accuracy of the network on the test set: %f %%' % (
     	acc))
 	torch.save(model.state_dict(),'./base_model.pth')
-	print('Train time %0.7f and test time %0.7f' % (
-    	total_train,total_test))
