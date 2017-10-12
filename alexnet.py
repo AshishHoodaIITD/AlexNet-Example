@@ -186,7 +186,7 @@ def train():
 			best_acc = val_acc
 			epoch = 0
 			alex_net_optimal.load_state_dict(alex_net.state_dict())
-			alex_net_optimal = copy.deepcopy(alex_net)
+			# alex_net_optimal = copy.deepcopy(alex_net)
 		else:
 			epoch = epoch +1
 
