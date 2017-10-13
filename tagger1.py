@@ -33,6 +33,12 @@ for sent in train_data:
     for word in sent:
         if word not in word_to_ix:
             word_to_ix[word] = len(word_to_ix)
+
+for sent in val_data:
+    for word in sent:
+        if word not in word_to_ix:
+            word_to_ix[word] = len(word_to_ix)
+
 for tags in train_label:
 	for word in tags:
 		if word not in tag_to_ix:
@@ -60,8 +66,8 @@ class tagger(nn.Module):
 	def forward(self, sentence):
 		embeds = self.word_embeddings(sentence)
 		# print(embeds)
-		print(embeds.view(1,len(sentence), -1))
-		print(self.hidden)
+		# print(embeds.view(1,len(sentence), -1))
+		# print(self.hidden)
 		self.hidden = self.lstm(embeds.view(len(sentence),1, -1), self.hidden)
 		tag_space = self.hidden2tag(self.hidden[0].view(len(sentence), -1))
 		tag_scores = F.log_softmax(tag_space)
@@ -78,7 +84,7 @@ optimizer = optim.SGD(model.parameters(), lr=0.1)
 # tag_scores = model(inputs)
 # print(tag_scores)
 
-for epoch in range(10):  # again, normally you would NOT do 300 epochs, it is toy data
+for epoch in range(1):  # again, normally you would NOT do 300 epochs, it is toy data
 	for i in range(len(train_data)):
 		sentence = train_data[i]
 		tags = train_label[i]
